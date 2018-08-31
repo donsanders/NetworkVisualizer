@@ -14,6 +14,7 @@
 		5690F7D62138DE3600305B9E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5690F7D42138DE3600305B9E /* LaunchScreen.storyboard */; };
 		5690F7E12138DE3600305B9E /* NetworkVisualizerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5690F7E02138DE3600305B9E /* NetworkVisualizerTests.swift */; };
 		5690F7EC2138DE3600305B9E /* NetworkVisualizerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5690F7EB2138DE3600305B9E /* NetworkVisualizerUITests.swift */; };
+		569B6AC02138EB39006D02CA /* VisualizationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 569B6ABF2138EB38006D02CA /* VisualizationView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +48,7 @@
 		5690F7E72138DE3600305B9E /* NetworkVisualizerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetworkVisualizerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5690F7EB2138DE3600305B9E /* NetworkVisualizerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkVisualizerUITests.swift; sourceTree = "<group>"; };
 		5690F7ED2138DE3600305B9E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		569B6ABF2138EB38006D02CA /* VisualizationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualizationView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +101,7 @@
 			children = (
 				5690F7CB2138DE3000305B9E /* AppDelegate.swift */,
 				5690F7CD2138DE3000305B9E /* ViewController.swift */,
+				569B6ABF2138EB38006D02CA /* VisualizationView.swift */,
 				5690F7CF2138DE3000305B9E /* Main.storyboard */,
 				5690F7D22138DE3600305B9E /* Assets.xcassets */,
 				5690F7D42138DE3600305B9E /* LaunchScreen.storyboard */,
@@ -257,6 +260,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5690F7CE2138DE3000305B9E /* ViewController.swift in Sources */,
+				569B6AC02138EB39006D02CA /* VisualizationView.swift in Sources */,
 				5690F7CC2138DE3000305B9E /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -431,6 +435,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4KYFMH85NB;
 				INFOPLIST_FILE = NetworkVisualizer/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -448,6 +453,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4KYFMH85NB;
 				INFOPLIST_FILE = NetworkVisualizer/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

@@ -10,16 +10,42 @@ import UIKit
 
 class ViewController: UIViewController {
 
+    @IBOutlet weak var visualizationView: VisualizationView!
+    var displayLink: CADisplayLink?
+    var startTime = 0.0
+    let animLength = 50.0
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        startDisplayLink()
+    }
+    
+    func startDisplayLink() {
+        stopDisplayLink() // make sure to stop a previous running display link
+        startTime = CACurrentMediaTime() // reset start time
+        
+        // create displayLink & add it to the run-loop
+        let displayLink = CADisplayLink(target: self, selector: #selector(displayLinkDidFire))
+        displayLink.add(to: .main, forMode: .commonModes)
+        self.displayLink = displayLink
+    }
+    
+    @objc func displayLinkDidFire(_ displayLink: CADisplayLink) {
+        var elapsed = CACurrentMediaTime() - startTime
+        if elapsed > animLength {
+            stopDisplayLink()
+            elapsed = animLength // clamp the elapsed time to the anim length
+        }
+
+        // Animation logic
+        visualizationView.frameCount += 1
+        visualizationView.setNeedsDisplay();
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    // Invalidate display link if it's non-nil, then set to nil
+    func stopDisplayLink() {
+        displayLink?.invalidate()
+        displayLink = nil
     }
-
 
 }
-
