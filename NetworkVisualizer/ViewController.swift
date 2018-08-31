@@ -38,7 +38,7 @@ class ViewController: UIViewController {
         }
 
         // Animation logic
-        visualizationView.frameCount += 1
+        visualizationView.updateState()
         visualizationView.setNeedsDisplay();
     }
 
