@@ -117,25 +117,18 @@ class VisualizationView: UIView {
     func updateVelocities() {
         var newVelocities: [CGPoint] = []
         var i = 0
-        let speedLimit: CGFloat = 10.0
+        let speedLimit: CGFloat = 10.0 / sqrt(2.0)
         for velocity in velocities {
             let position = positions[i]
             let velocity1 = updateVelocityForWalls(velocity: velocity, position: position)
             var velocity2 = updateVelocityForBalls(velocity: velocity1, position: position, i: i)
 
-            if velocity2.x > speedLimit {
-                print("velocity2.x \(velocity2.x)")
-                velocity2.x = speedLimit
-            } else if velocity2.x < -speedLimit {
-                print("velocity2.x \(velocity2.x)")
-                velocity2.x = -speedLimit
-            }
-            if velocity2.y > speedLimit {
-                print("velocity2.y \(velocity2.y)")
-                velocity2.y = speedLimit
-            } else if velocity2.y < -speedLimit {
-                print("velocity2.y \(velocity2.y)")
-                velocity2.y = -speedLimit
+            let velocitySquared = velocity2.x*velocity2.x + velocity2.y*velocity2.y
+            let speedSquared = speedLimit * speedLimit
+            if velocitySquared > speedSquared  {
+                let scalar = speedLimit / sqrt(velocitySquared)
+                velocity2.x = scalar * velocity2.x
+                velocity2.y = scalar * velocity2.y
             }
             newVelocities.append(velocity2)
 
