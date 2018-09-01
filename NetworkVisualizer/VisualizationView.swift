@@ -20,11 +20,13 @@ class VisualizationView: UIView {
     static let p2 = CGPoint(x: 160, y: 525)
     var positions: [CGPoint] = [p0, p1, p2]
     var velocities: [CGPoint] = [v0, v1, v2]
+    var appearance = [0, 100, 200]
     var edges: [[Int]] = [[0, 1, 1],
                           [1, 0, 1],
                           [1, 1, 0]]
-    var colors: [UIColor] = [UIColor.red, UIColor.green, UIColor.blue]
-    var radius: CGFloat = 50
+
+    let colors: [UIColor] = [UIColor.red, UIColor.green, UIColor.blue]
+    let radius: CGFloat = 50
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -36,6 +38,10 @@ class VisualizationView: UIView {
 
     func applyInverseSquareForceRepulser(velocity: CGPoint, delta: CGPoint) -> CGPoint {
         let scalar: CGFloat = 10
+        return applyInverseSquareForceRepulser(scalar: scalar, velocity: velocity, delta: delta)
+    }
+
+    func applyInverseSquareForceRepulser(scalar: CGFloat, velocity: CGPoint, delta: CGPoint) -> CGPoint {
         let minDelta: CGFloat = 50
         var newVelocity = CGPoint.zero
         let horizontalDistance = min(max(delta.x, minDelta), -minDelta)
@@ -64,15 +70,20 @@ class VisualizationView: UIView {
         var j = 0
         for ball in positions {
             if edges[i][j] == 0 { j += 1; continue }
+            if (frameCount < appearance[j]) { j += 1; continue }
             let delta = CGPoint(x: position.x - ball.x, y: position.y - ball.y)
             let vDelta1 = applyInverseSquareForceRepulser(velocity: newVelocity, delta: delta)
             let vDelta2 = applySpringForceAttractor(velocity: newVelocity, delta: delta)
             newVelocity = CGPoint(x: newVelocity.x - vDelta1.x - vDelta2.x, y: newVelocity.y - vDelta1.y - vDelta2.y)
             j += 1
         }
-        let delta = CGPoint(x: position.x, y: position.y)
-        let vDelta1 = applyInverseSquareForceRepulser(velocity: newVelocity, delta: delta)
-        newVelocity = CGPoint(x: newVelocity.x - vDelta1.x, y: newVelocity.y - vDelta1.y)
+        let propulsionDuration = 10*60
+        if (frameCount < appearance[i] + propulsionDuration) {
+            let strength = appearance[i] + propulsionDuration - frameCount
+            let delta = CGPoint(x: position.x, y: position.y)
+            let vDelta1 = applyInverseSquareForceRepulser(scalar: CGFloat(strength), velocity: newVelocity, delta: delta)
+            newVelocity = CGPoint(x: newVelocity.x - vDelta1.x, y: newVelocity.y - vDelta1.y)
+        }
         return newVelocity
     }
 
@@ -119,6 +130,11 @@ class VisualizationView: UIView {
         var i = 0
         let speedLimit: CGFloat = 10.0 / sqrt(2.0)
         for velocity in velocities {
+            if (frameCount < appearance[i]) {
+                newVelocities.append(velocity)
+                i += 1;
+                continue
+            }
             let position = positions[i]
             let velocity1 = updateVelocityForWalls(velocity: velocity, position: position)
             var velocity2 = updateVelocityForBalls(velocity: velocity1, position: position, i: i)
@@ -141,6 +157,12 @@ class VisualizationView: UIView {
         var newPositions: [CGPoint] = []
         var i = 0
         for position in positions {
+            if (frameCount < appearance[i]) {
+                newPositions.append(position)
+                i += 1
+                continue
+            }
+
             var newPosition = CGPoint(x: position.x + velocities[i].x, y: position.y + velocities[i].y)
             if (newPosition.x + radius > frame.width) {
                 newPosition.x = frame.width - radius - 1
@@ -191,8 +213,10 @@ class VisualizationView: UIView {
         var j = 0
         for node1 in positions {
             j = 0
+            if (frameCount < appearance[i] ) { i += 1; continue }
             for node2 in positions {
                 if edges[i][j] == 0 { j += 1; continue }
+                if (frameCount < appearance[j] ) { j += 1; continue }
                 drawEdge(start: node1, end: node2)
                 j += 1
             }
@@ -203,6 +227,7 @@ class VisualizationView: UIView {
     func drawNodes() {
         var i = 0
         for node in positions {
+            if (frameCount < appearance[i] ) { i += 1; continue }
             let origin = node
             drawCircle(origin: origin, radius: radius, fillColor: colors[i])
             i += 1
