@@ -12,7 +12,8 @@ import UIKit
 class VisualizationView: UIButton {
 
     var frameCount: Int = 0
-    static let v0 = CGPoint(x: 2.5, y: 3.5)
+
+    static let v0 = CGPoint(x: 2.5, y: 2.5)
     static let v1 = CGPoint(x: 2.5, y: 2.5)
     static let v2 = CGPoint(x: -2.5, y: -2.5)
     static let p0 = CGPoint(x: 250, y: 325)
@@ -49,15 +50,41 @@ class VisualizationView: UIButton {
     func applyInverseSquareForceRepulser(scalar: CGFloat, velocity: CGPoint, delta: CGPoint) -> CGPoint {
         let minDelta: CGFloat = 50
         var newVelocity = CGPoint.zero
-        let horizontalDistance = min(max(delta.x, minDelta), -minDelta)
-        let horizontalDistanceSquared = horizontalDistance * horizontalDistance
-        let horizontalForce = scalar / CGFloat(horizontalDistanceSquared)
-        newVelocity.x += horizontalForce
-
-        let verticalDistance = min(max(delta.y, minDelta), -minDelta)
-        let verticalDistanceSquared = verticalDistance * verticalDistance
-        let verticalForce = scalar / CGFloat(verticalDistanceSquared)
-        newVelocity.y += verticalForce
+        enum Mode {
+            case old
+            case corrected
+            case fortunate
+        }
+        let mode = Mode.fortunate
+        switch mode {
+        case .old:
+            let horizontalDistance = min(max(delta.x, minDelta), -minDelta)
+            let horizontalDistanceSquared = horizontalDistance * horizontalDistance
+            let horizontalForce = scalar / CGFloat(horizontalDistanceSquared)
+            newVelocity.x = horizontalForce
+            let verticalDistance = min(max(delta.y, minDelta), -minDelta)
+            let verticalDistanceSquared = verticalDistance * verticalDistance
+            let verticalForce = scalar / CGFloat(verticalDistanceSquared)
+            newVelocity.y = verticalForce
+        case .corrected:
+            var horizontalDistance : CGFloat?
+            if delta.x >= 0 { horizontalDistance = max(delta.x, minDelta) }
+            else { horizontalDistance = min(delta.x, -minDelta) }
+            let horizontalDistanceSquared = horizontalDistance! * horizontalDistance!
+            let horizontalForce = scalar / CGFloat(horizontalDistanceSquared)
+            newVelocity.x = horizontalForce
+            var verticalDistance : CGFloat?
+            if delta.y >= 0 { verticalDistance = max(delta.y, minDelta) }
+            else { verticalDistance = min(delta.y, -minDelta) }
+            let verticalDistanceSquared = verticalDistance! * verticalDistance!
+            let verticalForce = scalar / CGFloat(verticalDistanceSquared)
+            newVelocity.y = verticalForce
+        case .fortunate:
+            let minDeltaSquared = CGFloat(minDelta * minDelta)
+            let force = scalar / minDeltaSquared
+            newVelocity.x = delta.x >= 0 ? force : -force
+            newVelocity.y = delta.y >= 0 ? force : -force
+        }
 
         return newVelocity
     }
@@ -86,9 +113,9 @@ class VisualizationView: UIButton {
         if (frameCount < appearance[i] + propulsionDuration || activatedFrame != nil) {
             var strength = appearance[i] + propulsionDuration - frameCount
             if let activatedFrame = activatedFrame { strength = (activatedFrame - frameCount + 1) * 20 }
-            let delta = CGPoint(x: position.x, y: position.y)
+            let delta = CGPoint(x: frame.width / 2 - position.x, y: frame.height / 2 - position.y)
             let vDelta1 = applyInverseSquareForceRepulser(scalar: CGFloat(strength), velocity: newVelocity, delta: delta)
-            newVelocity = CGPoint(x: newVelocity.x - vDelta1.x, y: newVelocity.y - vDelta1.y)
+            newVelocity = CGPoint(x: newVelocity.x + vDelta1.x, y: newVelocity.y + vDelta1.y)
         }
         return newVelocity
     }
