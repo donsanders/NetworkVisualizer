@@ -12,12 +12,12 @@ import UIKit
 class VisualizationView: UIView {
 
     var frameCount: Int = 0
-    static let v0 = CGPoint(x: 2.5, y: 2.5)
+    static let v0 = CGPoint(x: 2.5, y: 3.5)
     static let v1 = CGPoint(x: 2.5, y: 2.5)
     static let v2 = CGPoint(x: -2.5, y: -2.5)
-    static let p0 = CGPoint(x: 25, y: 125)
+    static let p0 = CGPoint(x: 250, y: 125)
     static let p1 = CGPoint(x: 175, y: 75)
-    static let p2 = CGPoint(x: 100, y: 225)
+    static let p2 = CGPoint(x: 100, y: 425)
     var positions: [CGPoint] = [p0, p1, p2]
     var velocities: [CGPoint] = [v0, v1, v2]
     var colors: [UIColor] = [UIColor.red, UIColor.green, UIColor.blue]
@@ -33,13 +33,14 @@ class VisualizationView: UIView {
 
     func applyInverseSquareForce(velocity: CGPoint, delta: CGPoint) -> CGPoint {
         let scalar: CGFloat = 10
-        var newVelocity = velocity
-        let horizontalDistance = delta.x
+        let minDelta: CGFloat = 25
+        var newVelocity = CGPoint.zero
+        let horizontalDistance = min(max(delta.x, minDelta), -minDelta)
         let horizontalDistanceSquared = horizontalDistance * horizontalDistance
         let horizontalForce = scalar / CGFloat(horizontalDistanceSquared)
         newVelocity.x += horizontalForce
 
-        let verticalDistance = delta.y
+        let verticalDistance = min(max(delta.y, minDelta), -minDelta)
         let verticalDistanceSquared = verticalDistance * verticalDistance
         let verticalForce = scalar / CGFloat(verticalDistanceSquared)
         newVelocity.y += verticalForce
@@ -105,11 +106,13 @@ class VisualizationView: UIView {
         var i = 0
         for velocity in velocities {
             let position = positions[i]
-            var newVelocity = updateVelocityForWalls(velocity: velocity, position: position)
-//            newVelocity = updateVelocityForBalls(velocity: newVelocity, position: position, i: i)
-            newVelocities.append(newVelocity)
-            if fabs(newVelocity.x) > 10.0 { print("newVelocity.x \(newVelocity.x)") }
-            if fabs(newVelocity.y) > 10.0 { print("newVelocity.y \(newVelocity.y)") }
+            let velocity1 = updateVelocityForWalls(velocity: velocity, position: position)
+            let velocity2 = updateVelocityForBalls(velocity: velocity1, position: position, i: i)
+
+            newVelocities.append(velocity2)
+            if fabs(velocity2.x) > 10.0 { print("velocity2.x \(velocity2.x)") }
+            if fabs(velocity2.y) > 10.0 { print("velocity2.y \(velocity2.y)") }
+
             i += 1
         }
         velocities = newVelocities
@@ -132,8 +135,8 @@ class VisualizationView: UIView {
             if (newPosition.y < 0 || newPosition.y.isNaN) {
                 newPosition.y = 1
             }
-            if fabs(newPosition.x) > 100.0 { print("newPosition.x \(newPosition.x)") }
-            if fabs(newPosition.y) > 100.0 { print("newPosition.y \(newPosition.x)") }
+            if fabs(newPosition.x) > 320.0 { print("newPosition.x \(newPosition.x)") }
+            if fabs(newPosition.y) > 320.0 { print("newPosition.y \(newPosition.y)") }
             newPositions.append(newPosition)
             i += 1
         }
