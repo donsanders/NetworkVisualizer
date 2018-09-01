@@ -13,21 +13,15 @@ class VisualizationView: UIButton {
 
     var frameCount: Int = 0
 
-    static let v0 = CGPoint(x: 2.5, y: 2.5)
-    static let v1 = CGPoint(x: 2.5, y: 2.5)
-    static let v2 = CGPoint(x: -2.5, y: -2.5)
-    static let p0 = CGPoint(x: 250, y: 325)
-    static let p1 = CGPoint(x: 75, y: 75)
-    static let p2 = CGPoint(x: 160, y: 525)
-    var positions: [CGPoint] = [p0, p1, p2]
-    var velocities: [CGPoint] = [v0, v1, v2]
-    var appearance = [0, 100, 200]
-    var edges: [[Int]] = [[0, 1, 1],
-                          [1, 0, 1],
-                          [1, 1, 0]]
+    static let wallStrength = 0.5
+    static let v0 = CGPoint(x: wallStrength, y: wallStrength)
+    static let v1 = CGPoint(x: wallStrength, y: wallStrength)
+    var positions: [CGPoint] = []
+    var velocities: [CGPoint] = []
+    var appearance: [Int] = []
+    var edges: [[Int]] = [[]]
+    var colors: [UIColor] = []
     var activatedFrame: Int?
-
-    let colors: [UIColor] = [UIColor.red, UIColor.green, UIColor.blue]
     let radius: CGFloat = 50
 
     override init(frame: CGRect) {
@@ -217,8 +211,45 @@ class VisualizationView: UIButton {
         positions = newPositions
     }
 
+    func makeEdges() {
+        var newEdges: [[Int]] = []
+        var count = 1
+        for row in edges {
+            var newRow = row
+            newRow.append(0)
+            newEdges.append(newRow)
+            count = newEdges.count
+        }
+        newEdges.append(Array(repeating: 0, count: count))
+        edges = newEdges
+    }
+
+    func addNodes() {
+        // generate angle based on frameCount / 60 can be radians
+        let releasePeriod = 6
+        switch frameCount % releasePeriod {
+        case 1:
+            let radians = CGFloat(frameCount / releasePeriod)
+            let w = frame.width / 2
+            let h = frame.height / 2
+            let x = sin(radians) * w
+            let y = cos(radians) * h
+            let p = CGPoint(x: w + x, y: h + y)
+            positions.append(p)
+            velocities.append(CGPoint.zero)
+            appearance.append(frameCount)
+            let color = UIColor.init(hue: radians / 13, saturation: 1.0, brightness: 0.9, alpha: 1.0)
+            colors.append(color)
+            makeEdges()
+            print("\(frameCount / releasePeriod)")
+        default:
+            return
+        }
+    }
+
     func updateState() {
         frameCount += 1
+        addNodes()
         updateVelocities()
         updatePositions()
     }
