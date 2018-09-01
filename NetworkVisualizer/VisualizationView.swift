@@ -20,10 +20,7 @@ class VisualizationView: UIView {
     static let p2 = CGPoint(x: 100, y: 425)
     var positions: [CGPoint] = [p0, p1, p2]
     var velocities: [CGPoint] = [v0, v1, v2]
-    static let redAlpha = UIColor(red: 1, green: 0, blue: 0, alpha: 0.5)
-    static let greenAlpha = UIColor(red: 0, green: 1, blue: 0, alpha: 0.5)
-    static let blueAlpha = UIColor(red: 0, green: 0, blue: 1, alpha: 0.5)
-    var colors: [UIColor] = [redAlpha, UIColor.green, UIColor.blue]
+    var colors: [UIColor] = [UIColor.red, UIColor.green, UIColor.blue]
     var radius: CGFloat = 50
 
     override init(frame: CGRect) {
@@ -168,15 +165,31 @@ class VisualizationView: UIView {
         updatePositions()
     }
 
+    func drawEdge(start: CGPoint, end: CGPoint) {
+        let path = UIBezierPath()
+        path.move(to: start)
+        path.addLine(to: end)
+        path.close()
+        UIColor.darkGray.set()
+        path.stroke()
+        path.fill()
+    }
+
     func drawCircle(origin: CGPoint, radius: CGFloat, fillColor: UIColor) {
-        let circleRect = CGRect(origin: origin, size: CGSize(width: radius, height: radius))
+        let rectTopLeft = CGPoint(x: origin.x - radius / 2, y: origin.y - radius / 2)
+        let circleRect = CGRect(origin: rectTopLeft, size: CGSize(width: radius, height: radius))
         let path = UIBezierPath(ovalIn: circleRect)
         fillColor.setFill()
-        path.fill()
+        path.fill(with: CGBlendMode.screen, alpha: 0.5)
     }
 
     override func draw(_ dirtyRect: CGRect) {
         super.draw(dirtyRect)
+        for node1 in positions {
+            for node2 in positions {
+                drawEdge(start: node1, end: node2)
+            }
+        }
         var i = 0
         for node in positions {
             let origin = node
