@@ -14,22 +14,22 @@ class ViewController: UIViewController {
     var displayLink: CADisplayLink?
     var startTime = 0.0
     let animLength = 50.0
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         startDisplayLink()
     }
-    
+
     func startDisplayLink() {
         stopDisplayLink() // make sure to stop a previous running display link
         startTime = CACurrentMediaTime() // reset start time
-        
+
         // create displayLink & add it to the run-loop
         let displayLink = CADisplayLink(target: self, selector: #selector(displayLinkDidFire))
         displayLink.add(to: .main, forMode: .commonModes)
         self.displayLink = displayLink
     }
-    
+
     @objc func displayLinkDidFire(_ displayLink: CADisplayLink) {
         var elapsed = CACurrentMediaTime() - startTime
         if elapsed > animLength {
@@ -49,3 +49,4 @@ class ViewController: UIViewController {
     }
 
 }
+

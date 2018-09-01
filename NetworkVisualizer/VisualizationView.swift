@@ -13,9 +13,15 @@ class VisualizationView: UIView {
 
     var frameCount: Int = 0
     static let v0 = CGPoint(x: 2.5, y: 2.5)
-    var positions: [CGPoint] = [CGPoint(x: 25, y: 25)]
-    var velocities: [CGPoint] = [v0]
-    var radius: CGFloat = 100
+    static let v1 = CGPoint(x: 2.5, y: 2.5)
+    static let v2 = CGPoint(x: -2.5, y: -2.5)
+    static let p0 = CGPoint(x: 25, y: 125)
+    static let p1 = CGPoint(x: 175, y: 75)
+    static let p2 = CGPoint(x: 100, y: 225)
+    var positions: [CGPoint] = [p0, p1, p2]
+    var velocities: [CGPoint] = [v0, v1, v2]
+    var colors: [UIColor] = [UIColor.red, UIColor.green, UIColor.blue]
+    var radius: CGFloat = 50
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -23,6 +29,37 @@ class VisualizationView: UIView {
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
+    }
+
+    func applyInverseSquareForce(velocity: CGPoint, delta: CGPoint) -> CGPoint {
+        let scalar: CGFloat = 10
+        var newVelocity = velocity
+        let horizontalDistance = delta.x
+        let horizontalDistanceSquared = horizontalDistance * horizontalDistance
+        let horizontalForce = scalar / CGFloat(horizontalDistanceSquared)
+        newVelocity.x += horizontalForce
+
+        let verticalDistance = delta.y
+        let verticalDistanceSquared = verticalDistance * verticalDistance
+        let verticalForce = scalar / CGFloat(verticalDistanceSquared)
+        newVelocity.y += verticalForce
+
+        return newVelocity
+    }
+
+    func updateVelocityForBalls(velocity: CGPoint, position: CGPoint, i: Int) -> CGPoint {
+        var newVelocity = velocity
+        var j = 0
+        for ball in positions {
+            print("position \(position) ball \(ball)")
+            if i == j { j += 1; continue }
+            let delta = CGPoint(x: position.x - ball.x, y: position.y - ball.y)
+            let vDelta = applyInverseSquareForce(velocity: newVelocity, delta: delta)
+            print("i \(i) j \(j) newVelocity \(newVelocity) vDelta \(vDelta)")
+            newVelocity = CGPoint(x: newVelocity.x - vDelta.x, y: newVelocity.y - vDelta.y)
+            j += 1
+        }
+        return newVelocity
     }
 
     func updateVelocityForWalls(velocity: CGPoint, position: CGPoint) -> CGPoint {
@@ -68,8 +105,11 @@ class VisualizationView: UIView {
         var i = 0
         for velocity in velocities {
             let position = positions[i]
-            let newVelocity = updateVelocityForWalls(velocity: velocity, position: position)
+            var newVelocity = updateVelocityForWalls(velocity: velocity, position: position)
+//            newVelocity = updateVelocityForBalls(velocity: newVelocity, position: position, i: i)
             newVelocities.append(newVelocity)
+            if fabs(newVelocity.x) > 10.0 { print("newVelocity.x \(newVelocity.x)") }
+            if fabs(newVelocity.y) > 10.0 { print("newVelocity.y \(newVelocity.y)") }
             i += 1
         }
         velocities = newVelocities
@@ -79,7 +119,21 @@ class VisualizationView: UIView {
         var newPositions: [CGPoint] = []
         var i = 0
         for position in positions {
-            let newPosition = CGPoint(x: position.x + velocities[i].x, y: position.y + velocities[i].y)
+            var newPosition = CGPoint(x: position.x + velocities[i].x, y: position.y + velocities[i].y)
+            if (newPosition.x + radius > frame.width) {
+                newPosition.x = frame.width - radius - 1
+            }
+            if (newPosition.y + radius > frame.height) {
+                newPosition.y = frame.height - radius - 1
+            }
+            if (newPosition.x < 0 || newPosition.x.isNaN) {
+                newPosition.x = 1
+            }
+            if (newPosition.y < 0 || newPosition.y.isNaN) {
+                newPosition.y = 1
+            }
+            if fabs(newPosition.x) > 100.0 { print("newPosition.x \(newPosition.x)") }
+            if fabs(newPosition.y) > 100.0 { print("newPosition.y \(newPosition.x)") }
             newPositions.append(newPosition)
             i += 1
         }
@@ -92,9 +146,8 @@ class VisualizationView: UIView {
         updatePositions()
     }
 
-    func drawCircle(origin: CGPoint, radius: CGFloat) {
+    func drawCircle(origin: CGPoint, radius: CGFloat, fillColor: UIColor) {
         let circleRect = CGRect(origin: origin, size: CGSize(width: radius, height: radius))
-        let fillColor = UIColor.red
         let path = UIBezierPath(ovalIn: circleRect)
         fillColor.setFill()
         path.fill()
@@ -102,10 +155,11 @@ class VisualizationView: UIView {
 
     override func draw(_ dirtyRect: CGRect) {
         super.draw(dirtyRect)
-        radius = min(frame.width, frame.height) / 2
+        var i = 0
         for node in positions {
             let origin = node
-            drawCircle(origin: origin, radius: radius)
+            drawCircle(origin: origin, radius: radius, fillColor: colors[i])
+            i += 1
         }
     }
 
