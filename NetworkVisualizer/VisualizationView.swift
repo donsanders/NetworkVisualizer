@@ -226,6 +226,22 @@ class VisualizationView: UIButton {
     }
 
     func addNodes() {
+        if frameCount == 1 {
+            let v0 = CGPoint(x: 2.5, y: 2.5)
+            let v1 = CGPoint(x: 2.5, y: 2.5)
+            let v2 = CGPoint(x: -2.5, y: -2.5)
+            let p0 = CGPoint(x: 250, y: 325)
+            let p1 = CGPoint(x: 75, y: 75)
+            let p2 = CGPoint(x: 160, y: 525)
+            positions = [p0, p1, p2]
+            velocities = [v0, v1, v2]
+            appearance = [0, 0, 0]
+            edges = [[0, 1, 1],
+                     [1, 0, 1],
+                     [1, 1, 0]]
+            colors = [UIColor.red, UIColor.green, UIColor.blue]
+        }
+        return
         // generate angle based on frameCount / 60 can be radians
         let releasePeriod = 60
         switch frameCount % releasePeriod {
