@@ -13,7 +13,7 @@ class VisualizationView: UIButton {
 
     var frameCount: Int = 0
 
-    static let wallStrength = 0.5
+    static let wallStrength = 1.0
     static let v0 = CGPoint(x: wallStrength, y: wallStrength)
     static let v1 = CGPoint(x: wallStrength, y: wallStrength)
     var positions: [CGPoint] = []
@@ -74,7 +74,9 @@ class VisualizationView: UIButton {
             let verticalForce = scalar / CGFloat(verticalDistanceSquared)
             newVelocity.y = verticalForce
         case .fortunate:
+            let ignoreDistance: CGFloat = 50
             let minDeltaSquared = CGFloat(minDelta * minDelta)
+            if delta.x * delta.x + delta.y + delta.y > ignoreDistance * ignoreDistance { return CGPoint.zero }
             let force = scalar / minDeltaSquared
             newVelocity.x = delta.x >= 0 ? force : -force
             newVelocity.y = delta.y >= 0 ? force : -force
@@ -95,15 +97,14 @@ class VisualizationView: UIButton {
         var newVelocity = velocity
         var j = 0
         for ball in positions {
-            if edges[i][j] == 0 { j += 1; continue }
-            if (frameCount < appearance[j]) { j += 1; continue }
             let delta = CGPoint(x: position.x - ball.x, y: position.y - ball.y)
             let vDelta1 = applyInverseSquareForceRepulser(velocity: newVelocity, delta: delta)
-            let vDelta2 = applySpringForceAttractor(velocity: newVelocity, delta: delta)
-            newVelocity = CGPoint(x: newVelocity.x - vDelta1.x - vDelta2.x, y: newVelocity.y - vDelta1.y - vDelta2.y)
+            var vDelta2 = CGPoint.zero
+            if edges[i][j] == 1 { vDelta2 = applySpringForceAttractor(velocity: newVelocity, delta: delta) }
+            newVelocity = CGPoint(x: newVelocity.x + vDelta1.x - vDelta2.x, y: newVelocity.y + vDelta1.y - vDelta2.y)
             j += 1
         }
-        let propulsionDuration = 10*60
+        let propulsionDuration = 0
         if (frameCount < appearance[i] + propulsionDuration || activatedFrame != nil) {
             var strength = appearance[i] + propulsionDuration - frameCount
             if let activatedFrame = activatedFrame { strength = (activatedFrame - frameCount + 1) * 20 }
@@ -226,7 +227,7 @@ class VisualizationView: UIButton {
 
     func addNodes() {
         // generate angle based on frameCount / 60 can be radians
-        let releasePeriod = 6
+        let releasePeriod = 60
         switch frameCount % releasePeriod {
         case 1:
             let radians = CGFloat(frameCount / releasePeriod)
