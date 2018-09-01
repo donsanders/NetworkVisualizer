@@ -37,7 +37,7 @@ class VisualizationView: UIButton {
     }
 
     func applyInverseSquareForceRepulser(velocity: CGPoint, delta: CGPoint) -> CGPoint {
-        let scalar: CGFloat = 10
+        let scalar: CGFloat = 100
         return applyInverseSquareForceRepulser(scalar: scalar, velocity: velocity, delta: delta)
     }
 
@@ -230,23 +230,74 @@ class VisualizationView: UIButton {
             let v0 = CGPoint(x: 2.5, y: 2.5)
             let v1 = CGPoint(x: 2.5, y: 2.5)
             let v2 = CGPoint(x: -2.5, y: -2.5)
+            let v3 = CGPoint(x: -2.5, y: -2.5)
             let p0 = CGPoint(x: 250, y: 325)
             let p1 = CGPoint(x: 75, y: 75)
             let p2 = CGPoint(x: 160, y: 525)
-            positions = [p0, p1, p2]
-            velocities = [v0, v1, v2]
-            appearance = [0, 0, 0]
-            edges = [[0, 1, 1],
-                     [1, 0, 1],
-                     [1, 1, 0]]
-            colors = [UIColor.red, UIColor.green, UIColor.blue]
+            let p3 = CGPoint(x: 260, y: 545)
+            let p4 = CGPoint(x: 270, y: 565)
+            let p5 = CGPoint(x: 280, y: 585)
+            positions = [p0, p1, p2, p3, p4, p5]
+            velocities = [v0, v1, v2, v3, v3, v3]
+            appearance = [0, 0, 0, 0, 0, 0]
+            edges = [[0, 1, 1, 0, 0, 0],
+                     [1, 0, 1, 0, 0, 0],
+                     [1, 1, 0, 0, 0, 0],
+                     [0, 0, 0, 0, 0, 0],
+                     [0, 0, 0, 0, 0, 0],
+                     [0, 0, 0, 0, 0, 0]]
+            colors = [UIColor.red, UIColor.green, UIColor.blue, UIColor.magenta, UIColor.purple, UIColor.yellow]
+        }
+        let base = 200
+        if frameCount == base {
+            edges[5][4] = 1
+        }
+        if frameCount == base*2 {
+            edges[4][5] = 1
+        }
+        if frameCount == base*3 {
+            edges[5][3] = 1
+        }
+        if frameCount == base*4 {
+            edges[3][4] = 1
+        }
+        if frameCount == base*5 {
+            edges[4][5] = 1
+        }
+        if frameCount == base*6 {
+            edges[3][5] = 1
+        }
+        if frameCount == base*7 {
+            edges[3][2] = 1
+        }
+        if frameCount == base*8 {
+            edges[2][3] = 1
         }
         return
+/*
+         if frameCount == 1 {
+         let v0 = CGPoint(x: 2.5, y: 2.5)
+         let v1 = CGPoint(x: 2.5, y: 2.5)
+         let v2 = CGPoint(x: -2.5, y: -2.5)
+         let p0 = CGPoint(x: 250, y: 325)
+         let p1 = CGPoint(x: 75, y: 75)
+         let p2 = CGPoint(x: 160, y: 525)
+         positions = [p0, p1, p2]
+         velocities = [v0, v1, v2]
+         appearance = [0, 0, 0]
+         edges = [[0, 1, 1],
+         [1, 0, 1],
+         [1, 1, 0]]
+         colors = [UIColor.red, UIColor.green, UIColor.blue]
+         }
+         return
+*/
         // generate angle based on frameCount / 60 can be radians
         let releasePeriod = 60
         switch frameCount % releasePeriod {
         case 1:
-            let radians = CGFloat(frameCount / releasePeriod)
+            let iteration = frameCount / releasePeriod
+            let radians = CGFloat(iteration)
             let w = frame.width / 2
             let h = frame.height / 2
             let x = sin(radians) * w
@@ -258,6 +309,8 @@ class VisualizationView: UIButton {
             let color = UIColor.init(hue: radians / 13, saturation: 1.0, brightness: 0.9, alpha: 1.0)
             colors.append(color)
             makeEdges()
+            if frameCount > releasePeriod { edges[iteration][iteration - 1] = 1 }
+            if frameCount > releasePeriod { edges[iteration - 1][iteration] = 1 }
             print("\(frameCount / releasePeriod)")
         default:
             return
