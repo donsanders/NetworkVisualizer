@@ -15,11 +15,14 @@ class VisualizationView: UIView {
     static let v0 = CGPoint(x: 2.5, y: 3.5)
     static let v1 = CGPoint(x: 2.5, y: 2.5)
     static let v2 = CGPoint(x: -2.5, y: -2.5)
-    static let p0 = CGPoint(x: 250, y: 125)
-    static let p1 = CGPoint(x: 175, y: 75)
-    static let p2 = CGPoint(x: 100, y: 425)
+    static let p0 = CGPoint(x: 250, y: 325)
+    static let p1 = CGPoint(x: 75, y: 75)
+    static let p2 = CGPoint(x: 160, y: 525)
     var positions: [CGPoint] = [p0, p1, p2]
     var velocities: [CGPoint] = [v0, v1, v2]
+    var edges: [[Int]] = [[0, 1, 1],
+                          [1, 0, 1],
+                          [1, 1, 0]]
     var colors: [UIColor] = [UIColor.red, UIColor.green, UIColor.blue]
     var radius: CGFloat = 50
 
@@ -60,7 +63,7 @@ class VisualizationView: UIView {
         var newVelocity = velocity
         var j = 0
         for ball in positions {
-            if i == j { j += 1; continue }
+            if edges[i][j] == 0 { j += 1; continue }
             let delta = CGPoint(x: position.x - ball.x, y: position.y - ball.y)
             let vDelta1 = applyInverseSquareForceRepulser(velocity: newVelocity, delta: delta)
             let vDelta2 = applySpringForceAttractor(velocity: newVelocity, delta: delta)
@@ -183,13 +186,21 @@ class VisualizationView: UIView {
         path.fill(with: CGBlendMode.screen, alpha: 0.5)
     }
 
-    override func draw(_ dirtyRect: CGRect) {
-        super.draw(dirtyRect)
+    func drawEdges() {
+        var i = 0
+        var j = 0
         for node1 in positions {
+            j = 0
             for node2 in positions {
+                if edges[i][j] == 0 { j += 1; continue }
                 drawEdge(start: node1, end: node2)
+                j += 1
             }
+            i += 1
         }
+    }
+
+    func drawNodes() {
         var i = 0
         for node in positions {
             let origin = node
@@ -198,5 +209,10 @@ class VisualizationView: UIView {
         }
     }
 
-}
+    override func draw(_ dirtyRect: CGRect) {
+        super.draw(dirtyRect)
+        drawEdges()
+        drawNodes()
+    }
 
+}
