@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-class VisualizationView: UIView {
+class VisualizationView: UIButton {
 
     var frameCount: Int = 0
     static let v0 = CGPoint(x: 2.5, y: 3.5)
@@ -24,6 +24,7 @@ class VisualizationView: UIView {
     var edges: [[Int]] = [[0, 1, 1],
                           [1, 0, 1],
                           [1, 1, 0]]
+    var activatedFrame: Int?
 
     let colors: [UIColor] = [UIColor.red, UIColor.green, UIColor.blue]
     let radius: CGFloat = 50
@@ -34,6 +35,10 @@ class VisualizationView: UIView {
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
+    }
+
+    func action() {
+        activatedFrame = frameCount
     }
 
     func applyInverseSquareForceRepulser(velocity: CGPoint, delta: CGPoint) -> CGPoint {
@@ -78,8 +83,9 @@ class VisualizationView: UIView {
             j += 1
         }
         let propulsionDuration = 10*60
-        if (frameCount < appearance[i] + propulsionDuration) {
-            let strength = appearance[i] + propulsionDuration - frameCount
+        if (frameCount < appearance[i] + propulsionDuration || activatedFrame != nil) {
+            var strength = appearance[i] + propulsionDuration - frameCount
+            if let activatedFrame = activatedFrame { strength = (activatedFrame - frameCount + 1) * 20 }
             let delta = CGPoint(x: position.x, y: position.y)
             let vDelta1 = applyInverseSquareForceRepulser(scalar: CGFloat(strength), velocity: newVelocity, delta: delta)
             newVelocity = CGPoint(x: newVelocity.x - vDelta1.x, y: newVelocity.y - vDelta1.y)
@@ -176,8 +182,8 @@ class VisualizationView: UIView {
             if (newPosition.y < 0 || newPosition.y.isNaN) {
                 newPosition.y = 1
             }
-            if fabs(newPosition.x) > 320.0 { print("newPosition.x \(newPosition.x)") }
-            if fabs(newPosition.y) > 610.0 { print("newPosition.y \(newPosition.y)") }
+//            if fabs(newPosition.x) > 320.0 { print("newPosition.x \(newPosition.x)") }
+//            if fabs(newPosition.y) > 610.0 { print("newPosition.y \(newPosition.y)") }
             newPositions.append(newPosition)
             i += 1
         }

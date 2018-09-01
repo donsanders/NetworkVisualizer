@@ -20,6 +20,10 @@ class ViewController: UIViewController {
         startDisplayLink()
     }
 
+    @IBAction func screenTouched(_ sender: Any) {
+        visualizationView.action()
+    }
+
     func startDisplayLink() {
         stopDisplayLink() // make sure to stop a previous running display link
         startTime = CACurrentMediaTime() // reset start time
