@@ -20,7 +20,10 @@ class VisualizationView: UIView {
     static let p2 = CGPoint(x: 100, y: 425)
     var positions: [CGPoint] = [p0, p1, p2]
     var velocities: [CGPoint] = [v0, v1, v2]
-    var colors: [UIColor] = [UIColor.red, UIColor.green, UIColor.blue]
+    static let redAlpha = UIColor(red: 1, green: 0, blue: 0, alpha: 0.5)
+    static let greenAlpha = UIColor(red: 0, green: 1, blue: 0, alpha: 0.5)
+    static let blueAlpha = UIColor(red: 0, green: 0, blue: 1, alpha: 0.5)
+    var colors: [UIColor] = [redAlpha, UIColor.green, UIColor.blue]
     var radius: CGFloat = 50
 
     override init(frame: CGRect) {
@@ -31,9 +34,9 @@ class VisualizationView: UIView {
         super.init(coder: aDecoder)
     }
 
-    func applyInverseSquareForce(velocity: CGPoint, delta: CGPoint) -> CGPoint {
+    func applyInverseSquareForceRepulser(velocity: CGPoint, delta: CGPoint) -> CGPoint {
         let scalar: CGFloat = 10
-        let minDelta: CGFloat = 25
+        let minDelta: CGFloat = 50
         var newVelocity = CGPoint.zero
         let horizontalDistance = min(max(delta.x, minDelta), -minDelta)
         let horizontalDistanceSquared = horizontalDistance * horizontalDistance
@@ -48,18 +51,28 @@ class VisualizationView: UIView {
         return newVelocity
     }
 
+    func applySpringForceAttractor(velocity: CGPoint, delta: CGPoint) -> CGPoint {
+        let scalar: CGFloat = 500
+        let maxDelta: CGFloat = 250
+        let horizontalDistance = max(min(delta.x, maxDelta), -maxDelta) / scalar
+        let verticalDistance = max(min(delta.y, maxDelta), -maxDelta) / scalar
+        return CGPoint(x: horizontalDistance, y: verticalDistance)
+    }
+
     func updateVelocityForBalls(velocity: CGPoint, position: CGPoint, i: Int) -> CGPoint {
         var newVelocity = velocity
         var j = 0
         for ball in positions {
-            print("position \(position) ball \(ball)")
             if i == j { j += 1; continue }
             let delta = CGPoint(x: position.x - ball.x, y: position.y - ball.y)
-            let vDelta = applyInverseSquareForce(velocity: newVelocity, delta: delta)
-            print("i \(i) j \(j) newVelocity \(newVelocity) vDelta \(vDelta)")
-            newVelocity = CGPoint(x: newVelocity.x - vDelta.x, y: newVelocity.y - vDelta.y)
+            let vDelta1 = applyInverseSquareForceRepulser(velocity: newVelocity, delta: delta)
+            let vDelta2 = applySpringForceAttractor(velocity: newVelocity, delta: delta)
+            newVelocity = CGPoint(x: newVelocity.x - vDelta1.x - vDelta2.x, y: newVelocity.y - vDelta1.y - vDelta2.y)
             j += 1
         }
+        let delta = CGPoint(x: position.x, y: position.y)
+        let vDelta1 = applyInverseSquareForceRepulser(velocity: newVelocity, delta: delta)
+        newVelocity = CGPoint(x: newVelocity.x - vDelta1.x, y: newVelocity.y - vDelta1.y)
         return newVelocity
     }
 
@@ -104,14 +117,27 @@ class VisualizationView: UIView {
     func updateVelocities() {
         var newVelocities: [CGPoint] = []
         var i = 0
+        let speedLimit: CGFloat = 10.0
         for velocity in velocities {
             let position = positions[i]
             let velocity1 = updateVelocityForWalls(velocity: velocity, position: position)
-            let velocity2 = updateVelocityForBalls(velocity: velocity1, position: position, i: i)
+            var velocity2 = updateVelocityForBalls(velocity: velocity1, position: position, i: i)
 
+            if velocity2.x > speedLimit {
+                print("velocity2.x \(velocity2.x)")
+                velocity2.x = speedLimit
+            } else if velocity2.x < -speedLimit {
+                print("velocity2.x \(velocity2.x)")
+                velocity2.x = -speedLimit
+            }
+            if velocity2.y > speedLimit {
+                print("velocity2.y \(velocity2.y)")
+                velocity2.y = speedLimit
+            } else if velocity2.y < -speedLimit {
+                print("velocity2.y \(velocity2.y)")
+                velocity2.y = -speedLimit
+            }
             newVelocities.append(velocity2)
-            if fabs(velocity2.x) > 10.0 { print("velocity2.x \(velocity2.x)") }
-            if fabs(velocity2.y) > 10.0 { print("velocity2.y \(velocity2.y)") }
 
             i += 1
         }
@@ -136,7 +162,7 @@ class VisualizationView: UIView {
                 newPosition.y = 1
             }
             if fabs(newPosition.x) > 320.0 { print("newPosition.x \(newPosition.x)") }
-            if fabs(newPosition.y) > 320.0 { print("newPosition.y \(newPosition.y)") }
+            if fabs(newPosition.y) > 610.0 { print("newPosition.y \(newPosition.y)") }
             newPositions.append(newPosition)
             i += 1
         }
