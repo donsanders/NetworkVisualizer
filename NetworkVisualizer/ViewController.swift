@@ -13,7 +13,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var visualizationView: VisualizationView!
     var displayLink: CADisplayLink?
     var startTime = 0.0
-    let animLength = 50.0
+    let animLength = 100000.0
 
     override func viewDidLoad() {
         super.viewDidLoad()
