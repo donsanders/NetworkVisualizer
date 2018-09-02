@@ -36,7 +36,8 @@ class VisualizationView: UIButton {
     }
 
     func applyInverseSquareForceRepulser(delta: CGPoint) -> CGPoint {
-        let scalar: CGFloat = 50
+//        let scalar: CGFloat = 50
+        let scalar: CGFloat = 0.01
         return applyInverseSquareForceRepulser(scalar: scalar, delta: delta)
     }
 
@@ -117,7 +118,7 @@ class VisualizationView: UIButton {
             if let activatedFrame = activatedFrame { strength = (activatedFrame - frameCount + 1) * 20 }
             let delta = CGPoint(x: frame.width / 2 - position.x, y: frame.height / 2 - position.y)
             let vDelta1 = applyInverseSquareForceRepulser(scalar: CGFloat(strength), delta: delta)
-            newVelocity = CGPoint(x: newVelocity.x + vDelta1.x, y: newVelocity.y + vDelta1.y)
+            newVelocity = CGPoint(x: newVelocity.x - vDelta1.x, y: newVelocity.y - vDelta1.y)
         }
         return newVelocity
     }
@@ -136,28 +137,28 @@ class VisualizationView: UIButton {
         if (position.y - radius / 2 < 0) {
             newVelocity.y = VisualizationView.v0.y
         }
-        let scalar: CGFloat = 1000.0
+        let scalar: CGFloat = 10000.0
         var horizontalDistance = position.x - radius / 2
-        var horizontalDistanceSquared = horizontalDistance
-//        var horizontalDistanceSquared = horizontalDistance * horizontalDistance
+//        var horizontalDistanceSquared = horizontalDistance
+        var horizontalDistanceSquared = horizontalDistance * horizontalDistance
         var horizontalForce = scalar / CGFloat(horizontalDistanceSquared)
         newVelocity.x += horizontalForce / 1
 
         var verticalDistance = position.y - radius / 2
-//        var verticalDistanceSquared = verticalDistance * verticalDistance
-        var verticalDistanceSquared = verticalDistance
+        var verticalDistanceSquared = verticalDistance * verticalDistance
+//        var verticalDistanceSquared = verticalDistance
         var verticalForce = scalar / CGFloat(verticalDistanceSquared)
         newVelocity.y += verticalForce
 
         horizontalDistance = frame.width - position.x - radius / 2
-//        horizontalDistanceSquared = horizontalDistance * horizontalDistance
-        horizontalDistanceSquared = horizontalDistance
+        horizontalDistanceSquared = horizontalDistance * horizontalDistance
+//        horizontalDistanceSquared = horizontalDistance
         horizontalForce = scalar / CGFloat(horizontalDistanceSquared)
         newVelocity.x -= horizontalForce / 1
 
         verticalDistance = frame.height - position.y - radius / 2
-//        verticalDistanceSquared = verticalDistance * verticalDistance
-        verticalDistanceSquared = verticalDistance
+        verticalDistanceSquared = verticalDistance * verticalDistance
+//        verticalDistanceSquared = verticalDistance
         verticalForce = scalar / CGFloat(verticalDistanceSquared)
         newVelocity.y -= verticalForce
 
@@ -167,8 +168,8 @@ class VisualizationView: UIButton {
     func updateVelocities() {
         var newVelocities: [CGPoint] = []
         var i = 0
-        let speedLimit: CGFloat = 1.0 / sqrt(2.0)
-//        let speedLimit: CGFloat = 2.0
+//        let speedLimit: CGFloat = 1.0 / sqrt(2.0)
+        let speedLimit: CGFloat = 3.0
         for velocity in velocities {
             if (frameCount < appearance[i]) {
                 newVelocities.append(velocity)
@@ -253,6 +254,8 @@ class VisualizationView: UIButton {
         }
         return
 */
+/*
+        // Organic test
         if frameCount == 1 {
             let v0 = CGPoint(x: 2.5, y: 2.5)
             let v1 = CGPoint(x: 2.5, y: 2.5)
@@ -301,6 +304,7 @@ class VisualizationView: UIButton {
             edges[2][3] = 1
         }
         return
+ */
 /*
          if frameCount == 1 {
          let v0 = CGPoint(x: 2.5, y: 2.5)
@@ -320,7 +324,7 @@ class VisualizationView: UIButton {
          return
 */
         // generate angle based on frameCount / 60 can be radians
-        let releasePeriod = 60
+        let releasePeriod = 6
         switch frameCount % releasePeriod {
         case 1:
             let iteration = frameCount / releasePeriod
@@ -337,7 +341,7 @@ class VisualizationView: UIButton {
             colors.append(color)
             makeEdges()
             if frameCount > releasePeriod { edges[iteration][iteration - 1] = 1 }
-            if frameCount > releasePeriod { edges[iteration - 1][iteration] = 1 }
+//            if frameCount > releasePeriod { edges[iteration - 1][iteration] = 1 }
             print("\(frameCount / releasePeriod)")
         default:
             return
