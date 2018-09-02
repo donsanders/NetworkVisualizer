@@ -85,23 +85,6 @@ class VisualizationView: UIButton {
     }
 
     func applySpringForceAttractor(velocity: CGPoint, delta: CGPoint) -> CGPoint {
-        // Manhattan distance
-        /*
-         let scalar: CGFloat = 50
-         let maxDelta: CGFloat = 250
-        let horizontalForce = max(min(delta.x, maxDelta), -maxDelta) / scalar
-        let verticalForce = max(min(delta.y, maxDelta), -maxDelta) / scalar
- */
-//        let maxMultiplier:CGFloat = 0.45
-//        let maxMultiplier:CGFloat = 0.7
-//        let maxMultiplier:CGFloat = 0.75
-        /*
-        let maxMultiplier:CGFloat = 0.9
-        let distance = sqrt(delta.x * delta.x + delta.y * delta.y)
-        let horizontalForce = maxMultiplier * delta.x / distance
-        let verticalForce = maxMultiplier * delta.y / distance
- */
-//        let maxMultiplier:CGFloat = 10
         let maxMultiplier:CGFloat = 100
         let distance = sqrt(delta.x * delta.x + delta.y * delta.y)
         var multiplier = distance
