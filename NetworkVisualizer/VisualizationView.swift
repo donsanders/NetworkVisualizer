@@ -15,7 +15,6 @@ class VisualizationView: UIButton {
 
     static let wallStrength = 1.0
     static let v0 = CGPoint(x: wallStrength, y: wallStrength)
-    static let v1 = CGPoint(x: wallStrength, y: wallStrength)
     var positions: [CGPoint] = []
     var velocities: [CGPoint] = []
     var appearance: [Int] = []
@@ -36,13 +35,14 @@ class VisualizationView: UIButton {
         activatedFrame = frameCount
     }
 
-    func applyInverseSquareForceRepulser(velocity: CGPoint, delta: CGPoint) -> CGPoint {
-        let scalar: CGFloat = 100
-        return applyInverseSquareForceRepulser(scalar: scalar, velocity: velocity, delta: delta)
+    func applyInverseSquareForceRepulser(delta: CGPoint) -> CGPoint {
+        let scalar: CGFloat = 50
+        return applyInverseSquareForceRepulser(scalar: scalar, delta: delta)
     }
 
-    func applyInverseSquareForceRepulser(scalar: CGFloat, velocity: CGPoint, delta: CGPoint) -> CGPoint {
-        let minDelta: CGFloat = 50
+    func applyInverseSquareForceRepulser(scalar: CGFloat, delta: CGPoint) -> CGPoint {
+        let scalarBase: CGFloat = scalar * sqrt(2)
+        let minDelta: CGFloat = 1
         var newVelocity = CGPoint.zero
         enum Mode {
             case old
@@ -75,22 +75,43 @@ class VisualizationView: UIButton {
             newVelocity.y = verticalForce
         case .fortunate:
             let ignoreDistance: CGFloat = 50
-            let minDeltaSquared = CGFloat(minDelta * minDelta)
             if delta.x * delta.x + delta.y + delta.y > ignoreDistance * ignoreDistance { return CGPoint.zero }
-            let force = scalar / minDeltaSquared
-            newVelocity.x = delta.x >= 0 ? force : -force
-            newVelocity.y = delta.y >= 0 ? force : -force
+            let minDeltaSquared = CGFloat(minDelta * minDelta)
+            let force = scalarBase / minDeltaSquared
+             newVelocity.x = delta.x >= 0 ? force : -force
+             newVelocity.y = delta.y >= 0 ? force : -force
         }
-
         return newVelocity
     }
 
     func applySpringForceAttractor(velocity: CGPoint, delta: CGPoint) -> CGPoint {
-        let scalar: CGFloat = 500
-        let maxDelta: CGFloat = 250
-        let horizontalDistance = max(min(delta.x, maxDelta), -maxDelta) / scalar
-        let verticalDistance = max(min(delta.y, maxDelta), -maxDelta) / scalar
-        return CGPoint(x: horizontalDistance, y: verticalDistance)
+        // Manhattan distance
+        /*
+         let scalar: CGFloat = 50
+         let maxDelta: CGFloat = 250
+        let horizontalForce = max(min(delta.x, maxDelta), -maxDelta) / scalar
+        let verticalForce = max(min(delta.y, maxDelta), -maxDelta) / scalar
+ */
+//        let maxMultiplier:CGFloat = 0.45
+//        let maxMultiplier:CGFloat = 0.7
+//        let maxMultiplier:CGFloat = 0.75
+        /*
+        let maxMultiplier:CGFloat = 0.9
+        let distance = sqrt(delta.x * delta.x + delta.y * delta.y)
+        let horizontalForce = maxMultiplier * delta.x / distance
+        let verticalForce = maxMultiplier * delta.y / distance
+ */
+//        let maxMultiplier:CGFloat = 10
+        let maxMultiplier:CGFloat = 100
+        let distance = sqrt(delta.x * delta.x + delta.y * delta.y)
+        var multiplier = distance
+        if distance > maxMultiplier {
+            multiplier = maxMultiplier
+        }
+        let horizontalForce = multiplier * delta.x / distance
+        let verticalForce = multiplier * delta.y / distance
+        return CGPoint(x: horizontalForce, y: verticalForce)
+
     }
 
     func updateVelocityForBalls(velocity: CGPoint, position: CGPoint, i: Int) -> CGPoint {
@@ -98,7 +119,10 @@ class VisualizationView: UIButton {
         var j = 0
         for ball in positions {
             let delta = CGPoint(x: position.x - ball.x, y: position.y - ball.y)
-            let vDelta1 = applyInverseSquareForceRepulser(velocity: newVelocity, delta: delta)
+            var vDelta1 = CGPoint.zero
+            if i != j {
+                vDelta1 = applyInverseSquareForceRepulser(delta: delta)
+            }
             var vDelta2 = CGPoint.zero
             if edges[i][j] == 1 { vDelta2 = applySpringForceAttractor(velocity: newVelocity, delta: delta) }
             newVelocity = CGPoint(x: newVelocity.x + vDelta1.x - vDelta2.x, y: newVelocity.y + vDelta1.y - vDelta2.y)
@@ -109,7 +133,7 @@ class VisualizationView: UIButton {
             var strength = appearance[i] + propulsionDuration - frameCount
             if let activatedFrame = activatedFrame { strength = (activatedFrame - frameCount + 1) * 20 }
             let delta = CGPoint(x: frame.width / 2 - position.x, y: frame.height / 2 - position.y)
-            let vDelta1 = applyInverseSquareForceRepulser(scalar: CGFloat(strength), velocity: newVelocity, delta: delta)
+            let vDelta1 = applyInverseSquareForceRepulser(scalar: CGFloat(strength), delta: delta)
             newVelocity = CGPoint(x: newVelocity.x + vDelta1.x, y: newVelocity.y + vDelta1.y)
         }
         return newVelocity
@@ -117,10 +141,10 @@ class VisualizationView: UIButton {
 
     func updateVelocityForWalls(velocity: CGPoint, position: CGPoint) -> CGPoint {
         var newVelocity = velocity
-        if (position.x + radius > frame.width) {
+        if (position.x > frame.width) {
             newVelocity.x = -VisualizationView.v0.x
         }
-        if (position.y + radius > frame.height) {
+        if (position.y > frame.height) {
             newVelocity.y = -VisualizationView.v0.y
         }
         if (position.x < 0) {
@@ -140,12 +164,12 @@ class VisualizationView: UIButton {
         var verticalForce = scalar / CGFloat(verticalDistanceSquared)
         newVelocity.y += verticalForce
 
-        horizontalDistance = frame.width - position.x - radius
+        horizontalDistance = frame.width - position.x
         horizontalDistanceSquared = horizontalDistance * horizontalDistance
         horizontalForce = scalar / CGFloat(horizontalDistanceSquared)
         newVelocity.x -= horizontalForce / 1
 
-        verticalDistance = frame.height - position.y - radius
+        verticalDistance = frame.height - position.y
         verticalDistanceSquared = verticalDistance * verticalDistance
         verticalForce = scalar / CGFloat(verticalDistanceSquared)
         newVelocity.y -= verticalForce
@@ -156,7 +180,8 @@ class VisualizationView: UIButton {
     func updateVelocities() {
         var newVelocities: [CGPoint] = []
         var i = 0
-        let speedLimit: CGFloat = 10.0 / sqrt(2.0)
+        let speedLimit: CGFloat = 1.0 / sqrt(2.0)
+//        let speedLimit: CGFloat = 2.0
         for velocity in velocities {
             if (frameCount < appearance[i]) {
                 newVelocities.append(velocity)
@@ -167,7 +192,7 @@ class VisualizationView: UIButton {
             let velocity1 = updateVelocityForWalls(velocity: velocity, position: position)
             var velocity2 = updateVelocityForBalls(velocity: velocity1, position: position, i: i)
 
-            let velocitySquared = velocity2.x*velocity2.x + velocity2.y*velocity2.y
+            let velocitySquared = velocity2.x * velocity2.x + velocity2.y * velocity2.y
             let speedSquared = speedLimit * speedLimit
             if velocitySquared > speedSquared  {
                 let scalar = speedLimit / sqrt(velocitySquared)
@@ -192,11 +217,11 @@ class VisualizationView: UIButton {
             }
 
             var newPosition = CGPoint(x: position.x + velocities[i].x, y: position.y + velocities[i].y)
-            if (newPosition.x + radius > frame.width) {
-                newPosition.x = frame.width - radius - 1
+            if (newPosition.x > frame.width) {
+                newPosition.x = frame.width - 1
             }
-            if (newPosition.y + radius > frame.height) {
-                newPosition.y = frame.height - radius - 1
+            if (newPosition.y > frame.height) {
+                newPosition.y = frame.height - 1
             }
             if (newPosition.x < 0 || newPosition.x.isNaN) {
                 newPosition.x = 1
@@ -226,6 +251,20 @@ class VisualizationView: UIButton {
     }
 
     func addNodes() {
+        /*
+        if frameCount == 1 {
+            let v0 = CGPoint(x: 2.5, y: 2.5)
+            let v1 = CGPoint(x: 2.5, y: 2.5)
+            let p0 = CGPoint(x: 250, y: 325)
+            let p1 = CGPoint(x: 75, y: 75)
+            positions = [p0, p1]
+            velocities = [v0, v1]
+            appearance = [0, 0]
+            edges = [[0, 1],
+                     [1, 0]]
+            colors = [UIColor.red, UIColor.green, UIColor.blue, UIColor.magenta, UIColor.purple, UIColor.yellow]
+        }
+*/
         if frameCount == 1 {
             let v0 = CGPoint(x: 2.5, y: 2.5)
             let v1 = CGPoint(x: 2.5, y: 2.5)
