@@ -36,8 +36,8 @@ class VisualizationView: UIButton {
     }
 
     func applyInverseSquareForceRepulser(delta: CGPoint) -> CGPoint {
-//        let scalar: CGFloat = 50
-        let scalar: CGFloat = 0.01
+        let scalar: CGFloat = 50
+//        let scalar: CGFloat = 0.01
         return applyInverseSquareForceRepulser(scalar: scalar, delta: delta)
     }
 
@@ -168,8 +168,8 @@ class VisualizationView: UIButton {
     func updateVelocities() {
         var newVelocities: [CGPoint] = []
         var i = 0
-//        let speedLimit: CGFloat = 1.0 / sqrt(2.0)
-        let speedLimit: CGFloat = 3.0
+        let speedLimit: CGFloat = 1.0 / sqrt(2.0)
+//        let speedLimit: CGFloat = 3.0
         for velocity in velocities {
             if (frameCount < appearance[i]) {
                 newVelocities.append(velocity)
@@ -239,7 +239,7 @@ class VisualizationView: UIButton {
     }
 
     func addNodes() {
-/*
+        /*
         if frameCount == 1 {
             let v0 = CGPoint(x: 2.5, y: 2.5)
             let v1 = CGPoint(x: 2.5, y: 2.5)
@@ -254,7 +254,7 @@ class VisualizationView: UIButton {
         }
         return
 */
-/*
+
         // Organic test
         if frameCount == 1 {
             let v0 = CGPoint(x: 2.5, y: 2.5)
@@ -304,7 +304,7 @@ class VisualizationView: UIButton {
             edges[2][3] = 1
         }
         return
- */
+
 /*
          if frameCount == 1 {
          let v0 = CGPoint(x: 2.5, y: 2.5)
@@ -340,7 +340,7 @@ class VisualizationView: UIButton {
             let color = UIColor.init(hue: radians / 13, saturation: 1.0, brightness: 0.9, alpha: 1.0)
             colors.append(color)
             makeEdges()
-            if frameCount > releasePeriod { edges[iteration][iteration - 1] = 1 }
+//            if frameCount > releasePeriod { edges[iteration][iteration - 1] = 1 }
 //            if frameCount > releasePeriod { edges[iteration - 1][iteration] = 1 }
             print("\(frameCount / releasePeriod)")
         default:
