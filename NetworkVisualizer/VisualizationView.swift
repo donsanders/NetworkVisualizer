@@ -36,14 +36,14 @@ class VisualizationView: UIButton {
     }
 
     func applyInverseSquareForceRepulser(delta: CGPoint) -> CGPoint {
-        let scalar: CGFloat = 50
-//        let scalar: CGFloat = 0.01
+//        let scalar: CGFloat = 50
+        let scalar: CGFloat = 1
         return applyInverseSquareForceRepulser(scalar: scalar, delta: delta)
     }
 
     func applyInverseSquareForceRepulser(scalar: CGFloat, delta: CGPoint) -> CGPoint {
         let scalarBase: CGFloat = scalar * sqrt(2)
-        let minDelta: CGFloat = 1
+        let minDelta: CGFloat = 10
         var newVelocity = CGPoint.zero
         enum Mode {
             case old
@@ -86,7 +86,8 @@ class VisualizationView: UIButton {
     }
 
     func applySpringForceAttractor(velocity: CGPoint, delta: CGPoint) -> CGPoint {
-        let maxMultiplier:CGFloat = 100
+//        let maxMultiplier:CGFloat = 100
+        let maxMultiplier:CGFloat = 0.1
         let distance = sqrt(delta.x * delta.x + delta.y * delta.y)
         var multiplier = distance
         if distance > maxMultiplier {
@@ -137,7 +138,7 @@ class VisualizationView: UIButton {
         if (position.y - radius / 2 < 0) {
             newVelocity.y = VisualizationView.v0.y
         }
-        let scalar: CGFloat = 10000.0
+        let scalar: CGFloat = 100.0
         var horizontalDistance = position.x - radius / 2
 //        var horizontalDistanceSquared = horizontalDistance
         var horizontalDistanceSquared = horizontalDistance * horizontalDistance
@@ -168,8 +169,8 @@ class VisualizationView: UIButton {
     func updateVelocities() {
         var newVelocities: [CGPoint] = []
         var i = 0
-        let speedLimit: CGFloat = 1.0 / sqrt(2.0)
-//        let speedLimit: CGFloat = 3.0
+//        let speedLimit: CGFloat = 1.0 / sqrt(2.0)
+        let speedLimit: CGFloat = 5.0
         for velocity in velocities {
             if (frameCount < appearance[i]) {
                 newVelocities.append(velocity)
@@ -254,7 +255,7 @@ class VisualizationView: UIButton {
         }
         return
 */
-
+/*
         // Organic test
         if frameCount == 1 {
             let v0 = CGPoint(x: 2.5, y: 2.5)
@@ -304,8 +305,8 @@ class VisualizationView: UIButton {
             edges[2][3] = 1
         }
         return
+*/
 
-/*
          if frameCount == 1 {
          let v0 = CGPoint(x: 2.5, y: 2.5)
          let v1 = CGPoint(x: 2.5, y: 2.5)
@@ -322,7 +323,7 @@ class VisualizationView: UIButton {
          colors = [UIColor.red, UIColor.green, UIColor.blue]
          }
          return
-*/
+
         // generate angle based on frameCount / 60 can be radians
         let releasePeriod = 6
         switch frameCount % releasePeriod {
