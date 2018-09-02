@@ -238,7 +238,7 @@ class VisualizationView: UIButton {
     }
 
     func addNodes() {
-        /*
+/*
         if frameCount == 1 {
             let v0 = CGPoint(x: 2.5, y: 2.5)
             let v1 = CGPoint(x: 2.5, y: 2.5)
@@ -251,6 +251,7 @@ class VisualizationView: UIButton {
                      [1, 0]]
             colors = [UIColor.red, UIColor.green, UIColor.blue, UIColor.magenta, UIColor.purple, UIColor.yellow]
         }
+        return
 */
         if frameCount == 1 {
             let v0 = CGPoint(x: 2.5, y: 2.5)
