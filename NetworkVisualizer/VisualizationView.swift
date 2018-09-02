@@ -141,36 +141,40 @@ class VisualizationView: UIButton {
 
     func updateVelocityForWalls(velocity: CGPoint, position: CGPoint) -> CGPoint {
         var newVelocity = velocity
-        if (position.x > frame.width) {
+        if (position.x + radius / 2 > frame.width) {
             newVelocity.x = -VisualizationView.v0.x
         }
-        if (position.y > frame.height) {
+        if (position.y + radius / 2 > frame.height) {
             newVelocity.y = -VisualizationView.v0.y
         }
-        if (position.x < 0) {
+        if (position.x - radius / 2 < 0) {
             newVelocity.x = VisualizationView.v0.x
         }
-        if (position.y < 0) {
+        if (position.y - radius / 2 < 0) {
             newVelocity.y = VisualizationView.v0.y
         }
-        let scalar: CGFloat = 100.0
-        var horizontalDistance = position.x
-        var horizontalDistanceSquared = horizontalDistance * horizontalDistance
+        let scalar: CGFloat = 1000.0
+        var horizontalDistance = position.x - radius / 2
+        var horizontalDistanceSquared = horizontalDistance
+//        var horizontalDistanceSquared = horizontalDistance * horizontalDistance
         var horizontalForce = scalar / CGFloat(horizontalDistanceSquared)
         newVelocity.x += horizontalForce / 1
 
-        var verticalDistance = position.y
-        var verticalDistanceSquared = verticalDistance * verticalDistance
+        var verticalDistance = position.y - radius / 2
+//        var verticalDistanceSquared = verticalDistance * verticalDistance
+        var verticalDistanceSquared = verticalDistance
         var verticalForce = scalar / CGFloat(verticalDistanceSquared)
         newVelocity.y += verticalForce
 
-        horizontalDistance = frame.width - position.x
-        horizontalDistanceSquared = horizontalDistance * horizontalDistance
+        horizontalDistance = frame.width - position.x - radius / 2
+//        horizontalDistanceSquared = horizontalDistance * horizontalDistance
+        horizontalDistanceSquared = horizontalDistance
         horizontalForce = scalar / CGFloat(horizontalDistanceSquared)
         newVelocity.x -= horizontalForce / 1
 
-        verticalDistance = frame.height - position.y
-        verticalDistanceSquared = verticalDistance * verticalDistance
+        verticalDistance = frame.height - position.y - radius / 2
+//        verticalDistanceSquared = verticalDistance * verticalDistance
+        verticalDistanceSquared = verticalDistance
         verticalForce = scalar / CGFloat(verticalDistanceSquared)
         newVelocity.y -= verticalForce
 
