@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 
 class VisualizationView: UIButton {
+    weak var bannerLabel: UILabel?
 
     var frameCount: Int = 0
 
@@ -22,17 +23,116 @@ class VisualizationView: UIButton {
     var colors: [UIColor] = []
     var activatedFrame: Int?
     let radius: CGFloat = 50
+    var model1: VisualizationModel?
+    var model2: VisualizationModel?
+    var model3: VisualizationModel?
+    var orderQueue: [Order] = []
+    var edgeCount: Int = 0
+    var litNode: Int?
+    var litExpirtyFrame: Int = 0
+    var paused: Bool = false
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+        commoninit()
     }
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
+        commoninit()
+    }
+
+    func commoninit() {
+        let delta = 45
+        model1 = VisualizationModel(filename: "btc-aug-1")
+        var endFrame: Int = queueModelForRelease(model: model1!,
+                                                 nodeStartFrame: 1,
+                                                 nodeReleaseDelta: delta,
+                                                 edgeStartFrame: delta * 5,
+                                                 edgeReleaseDelta: delta * 5)
+        model2 = VisualizationModel(filename: "btc-aug-2", edges: model1!.edges)
+        endFrame += delta * 6
+        endFrame = queueModelForRelease(model: model2!,
+                                        nodeStartFrame: endFrame,
+                                        nodeReleaseDelta: delta / 4,
+                                        edgeStartFrame: delta * 1,
+                                        edgeReleaseDelta: delta / 4)
+        insertIntoOrderQueue(order: Order(frameCount: 100, message: "Four nodes in a confinement field"))
+        // nodes can be people, airports, web servers, or many other things
+        insertIntoOrderQueue(order: Order(frameCount: 400, message: "Nodes connected by edges form a network topology"))
+        insertIntoOrderQueue(order: Order(frameCount: 800, message: "Adding edges can cause dramatic changes in behavior"))
+        insertIntoOrderQueue(order: Order(frameCount: 1200, message: "Scan 1:  4 seed nodes connected by knows-of edges"))
+        insertIntoOrderQueue(order: Order(frameCount: 1900, message: "Scan 2:  Additional nodes are found"))
+        insertIntoOrderQueue(order: Order(frameCount: 2250, message: "Scan 2:  Additional nodes are found and edges also"))
+        insertIntoOrderQueue(order: Order(frameCount: 2600, message: "Eventually a core of connected nodes that form a small-world is found"))
+        // when connected by edges such as handshakes, flights, or links on web pages
+        // the collection of nodes and edges forms a network topology
+    }
+
+    func insertIntoOrderQueue(order: Order) {
+        var i: Int = 0
+        while i < orderQueue.count && orderQueue[i].frameCount < order.frameCount { i += 1 }
+        orderQueue.insert(order, at: i)
+    }
+
+    func makeEdges() {
+        var newEdges: [[Int]] = []
+        var count = 1
+        for row in edges {
+            var newRow = row
+            newRow.append(0)
+            newEdges.append(newRow)
+            count = newEdges.count
+        }
+        newEdges.append(Array(repeating: 0, count: count))
+        edges = newEdges
+    }
+
+    func makeNode(saturation: CGFloat) {
+        let radians = CGFloat(frameCount)
+        let w = frame.width / 2
+        let h = frame.height / 2
+        let x = sin(radians) * w
+        let y = cos(radians) * h
+        let p = CGPoint(x: w + x, y: h + y)
+        positions.append(p)
+        velocities.append(CGPoint.zero)
+        appearance.append(frameCount)
+        let color = UIColor.init(hue: radians / 13, saturation: saturation, brightness: 0.9, alpha: 1.0)
+        colors.append(color)
+    }
+
+    var queuedEdgeCount: Int = 0
+    func queueModelForRelease(model: VisualizationModel,
+                              nodeStartFrame: Int,
+                              nodeReleaseDelta: Int,
+                              edgeStartFrame: Int,
+                              edgeReleaseDelta: Int) -> Int {
+        var rp: Int = nodeStartFrame
+        for node in VisualizationModel.nodeIndex.keys {
+//            print("xnode \(node)")
+            orderQueue.append(Order(frameCount: rp, source: node, model: model))
+            rp += nodeReleaseDelta
+        }
+        rp += edgeStartFrame
+        for i in 0..<model.edges.count {
+            for j in 0..<model.edges[i].count {
+                guard model.edges[i][j] == 1 else { continue }
+                if let src = VisualizationModel.nodeName[i], let dest = VisualizationModel.nodeName[j] {
+                    print("Adding edge \(src) \(dest)")
+                    queuedEdgeCount += 1
+                    if queuedEdgeCount == 4 { rp += 60*2 } // HACK
+                    orderQueue.append(Order(frameCount: rp, source: src, destination: dest, model: model))
+                }
+                rp += edgeReleaseDelta
+            }
+        }
+        return rp
     }
 
     func action() {
-        activatedFrame = frameCount
+        paused = !paused
+//        activatedFrame = frameCount
     }
 
     func applyInverseSquareForceRepulser(delta: CGPoint) -> CGPoint {
@@ -138,7 +238,7 @@ class VisualizationView: UIButton {
         if (position.y - radius / 2 < 0) {
             newVelocity.y = VisualizationView.v0.y
         }
-        let scalar: CGFloat = 100.0
+        let scalar: CGFloat = 1000.0
         var horizontalDistance = position.x - radius / 2
 //        var horizontalDistanceSquared = horizontalDistance
         var horizontalDistanceSquared = horizontalDistance * horizontalDistance
@@ -226,129 +326,52 @@ class VisualizationView: UIButton {
         positions = newPositions
     }
 
-    func makeEdges() {
-        var newEdges: [[Int]] = []
-        var count = 1
-        for row in edges {
-            var newRow = row
-            newRow.append(0)
-            newEdges.append(newRow)
-            count = newEdges.count
-        }
-        newEdges.append(Array(repeating: 0, count: count))
-        edges = newEdges
+    func setView(view: UIView, hidden: Bool) {
+        UIView.transition(with: view, duration: 0.5, options: .transitionCrossDissolve, animations: {
+            view.isHidden = hidden
+        })
     }
 
     func addNodes() {
-        /*
-        if frameCount == 1 {
-            let v0 = CGPoint(x: 2.5, y: 2.5)
-            let v1 = CGPoint(x: 2.5, y: 2.5)
-            let p0 = CGPoint(x: 250, y: 325)
-            let p1 = CGPoint(x: 75, y: 75)
-            positions = [p0, p1]
-            velocities = [v0, v1]
-            appearance = [0, 0]
-            edges = [[0, 1],
-                     [1, 0]]
-            colors = [UIColor.red, UIColor.green, UIColor.blue, UIColor.magenta, UIColor.purple, UIColor.yellow]
+        guard let order = orderQueue.first else { return }
+        if order.frameCount <= frameCount {
+            orderQueue = Array(orderQueue[1..<orderQueue.count])
+            switch order.orderType {
+            case .addNode:
+                let saturation: CGFloat = positions.count < 5 ? 0.9 : 0.8 // HACK
+                makeNode(saturation: saturation)
+                makeEdges()
+            case .addEdge:
+                let source = order.source
+//                print("case edge \(source) \(positions.count) \(edgeCount)")
+                if let destination = order.destination,
+                    let sourceIndex = VisualizationModel.nodeIndex[source],
+                    let destinationIndex = VisualizationModel.nodeIndex[destination],
+                    edges[sourceIndex][destinationIndex] == 0 {
+                    edgeCount += 1
+                    edges[sourceIndex][destinationIndex] = 1
+                    litNode = sourceIndex
+                    litExpirtyFrame = frameCount + 40
+//                    print("litExpirtyFrame \(litExpirtyFrame)")
+                }
+            case .message:
+                guard let message = order.message else { return }
+                bannerLabel?.text = message
+//                print("message \(message)")
+                if let banner = bannerLabel { setView(view: banner, hidden: false) }
+                insertIntoOrderQueue(order: Order(frameCount: frameCount + 60*5))
+            case .hideBanner:
+//                print("hide banner")
+                if let banner = bannerLabel { setView(view: banner, hidden: true) }
+            default:
+                print("Unknown order type.")
+            }
         }
         return
-*/
-
-        // Organic test
-        if frameCount == 1 {
-            let v0 = CGPoint(x: 2.5, y: 2.5)
-            let v1 = CGPoint(x: 2.5, y: 2.5)
-            let v2 = CGPoint(x: -2.5, y: -2.5)
-            let v3 = CGPoint(x: -2.5, y: -2.5)
-            let p0 = CGPoint(x: 250, y: 325)
-            let p1 = CGPoint(x: 75, y: 75)
-            let p2 = CGPoint(x: 160, y: 525)
-            let p3 = CGPoint(x: 260, y: 545)
-            let p4 = CGPoint(x: 270, y: 565)
-            let p5 = CGPoint(x: 280, y: 585)
-            positions = [p0, p1, p2, p3, p4, p5]
-            velocities = [v0, v1, v2, v3, v3, v3]
-            appearance = [0, 100, 200, 300, 400, 500]
-            edges = [[0, 1, 1, 0, 0, 0],
-                     [1, 0, 1, 0, 0, 0],
-                     [1, 1, 0, 0, 0, 0],
-                     [0, 0, 0, 0, 0, 0],
-                     [0, 0, 0, 0, 0, 0],
-                     [0, 0, 0, 0, 0, 0]]
-            colors = [UIColor.red, UIColor.green, UIColor.blue, UIColor.magenta, UIColor.purple, UIColor.yellow]
-        }
-        let base = 200
-        if frameCount == base {
-            edges[5][4] = 1
-        }
-        if frameCount == base*2 {
-            edges[4][5] = 1
-        }
-        if frameCount == base*3 {
-            edges[5][3] = 1
-        }
-        if frameCount == base*4 {
-            edges[3][4] = 1
-        }
-        if frameCount == base*5 {
-            edges[4][5] = 1
-        }
-        if frameCount == base*6 {
-            edges[3][5] = 1
-        }
-        if frameCount == base*7 {
-            edges[3][2] = 1
-        }
-        if frameCount == base*8 {
-            edges[2][3] = 1
-        }
-        return
-/*
-         if frameCount == 1 {
-         let v0 = CGPoint(x: 2.5, y: 2.5)
-         let v1 = CGPoint(x: 2.5, y: 2.5)
-         let v2 = CGPoint(x: -2.5, y: -2.5)
-         let p0 = CGPoint(x: 250, y: 325)
-         let p1 = CGPoint(x: 75, y: 75)
-         let p2 = CGPoint(x: 160, y: 525)
-         positions = [p0, p1, p2]
-         velocities = [v0, v1, v2]
-         appearance = [0, 0, 0]
-         edges = [[0, 1, 1],
-         [1, 0, 1],
-         [1, 1, 0]]
-         colors = [UIColor.red, UIColor.green, UIColor.blue]
-         }
-         return
-*/
-        // generate angle based on frameCount / 60 can be radians
-        let releasePeriod = 6
-        switch frameCount % releasePeriod {
-        case 1:
-            let iteration = frameCount / releasePeriod
-            let radians = CGFloat(iteration)
-            let w = frame.width / 2
-            let h = frame.height / 2
-            let x = sin(radians) * w
-            let y = cos(radians) * h
-            let p = CGPoint(x: w + x, y: h + y)
-            positions.append(p)
-            velocities.append(CGPoint.zero)
-            appearance.append(frameCount)
-            let color = UIColor.init(hue: radians / 13, saturation: 1.0, brightness: 0.9, alpha: 1.0)
-            colors.append(color)
-            makeEdges()
-//            if frameCount > releasePeriod { edges[iteration][iteration - 1] = 1 }
-//            if frameCount > releasePeriod { edges[iteration - 1][iteration] = 1 }
-            print("\(frameCount / releasePeriod)")
-        default:
-            return
-        }
     }
 
     func updateState() {
+        if paused { return }
         frameCount += 1
         addNodes()
         updateVelocities()
@@ -373,6 +396,7 @@ class VisualizationView: UIButton {
         path.fill(with: CGBlendMode.screen, alpha: 0.5)
     }
 
+    static var luck: Int = 0
     func drawEdges() {
         var i = 0
         var j = 0
@@ -380,7 +404,10 @@ class VisualizationView: UIButton {
             j = 0
             if (frameCount < appearance[i] ) { i += 1; continue }
             for node2 in positions {
+                VisualizationView.luck += 1
                 if edges[i][j] == 0 { j += 1; continue }
+                if i > j && edges[j][i] == 1 { j += 1; continue } // Already drawn
+//                if (VisualizationView.luck % 5) != 0 { j += 1; continue }
                 if (frameCount < appearance[j] ) { j += 1; continue }
                 drawEdge(start: node1, end: node2)
                 j += 1
@@ -396,6 +423,11 @@ class VisualizationView: UIButton {
             let origin = node
             drawCircle(origin: origin, radius: radius, fillColor: colors[i])
             i += 1
+        }
+        if let litNode = self.litNode {
+            let origin = positions[litNode]
+            drawCircle(origin: origin, radius: radius / 2, fillColor: UIColor.white)
+            if frameCount > litExpirtyFrame { self.litNode = nil }
         }
     }
 

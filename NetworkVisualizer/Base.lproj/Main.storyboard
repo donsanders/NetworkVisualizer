@@ -20,7 +20,24 @@
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HJb-vm-n5A" customClass="VisualizationView" customModule="NetworkVisualizer" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JhT-EM-nih">
+                                        <rect key="frame" x="0.0" y="28" width="375" height="36"/>
+                                        <color key="backgroundColor" red="0.23647992227979275" green="0.23647992227979275" blue="0.23647992227979275" alpha="0.60874229753521125" colorSpace="custom" customColorSpace="displayP3"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="36" id="W9U-L6-6j6"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                        <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstItem="JhT-EM-nih" firstAttribute="top" secondItem="HJb-vm-n5A" secondAttribute="top" constant="28" id="0bb-iC-n0a"/>
+                                    <constraint firstAttribute="trailing" secondItem="JhT-EM-nih" secondAttribute="trailing" id="2yD-ju-HKn"/>
+                                    <constraint firstItem="JhT-EM-nih" firstAttribute="leading" secondItem="HJb-vm-n5A" secondAttribute="leading" id="x4E-eO-4Dx"/>
+                                </constraints>
                                 <connections>
                                     <action selector="screenTouched:" destination="BYZ-38-t0r" eventType="touchUpInside" id="spj-9O-LWn"/>
                                 </connections>
@@ -36,6 +53,7 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
+                        <outlet property="bannerLabel" destination="JhT-EM-nih" id="qxN-FJ-QmO"/>
                         <outlet property="visualizationView" destination="HJb-vm-n5A" id="rF4-DY-3h5"/>
                     </connections>
                 </viewController>

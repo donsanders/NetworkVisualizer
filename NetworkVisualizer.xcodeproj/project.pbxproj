@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		561EBADE213C45E6001EDECB /* VisualizationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 561EBADD213C45E6001EDECB /* VisualizationModel.swift */; };
+		561EBAE0213CA1C3001EDECB /* Order.swift in Sources */ = {isa = PBXBuildFile; fileRef = 561EBADF213CA1C3001EDECB /* Order.swift */; };
+		563D4EAE213CE2B40011E4E8 /* btc-aug-1.csv in Resources */ = {isa = PBXBuildFile; fileRef = 563D4EAD213CE2B40011E4E8 /* btc-aug-1.csv */; };
+		563D4EB0213CE2CD0011E4E8 /* btc-aug-2.csv in Resources */ = {isa = PBXBuildFile; fileRef = 563D4EAF213CE2CC0011E4E8 /* btc-aug-2.csv */; };
 		5690F7CC2138DE3000305B9E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5690F7CB2138DE3000305B9E /* AppDelegate.swift */; };
 		5690F7CE2138DE3000305B9E /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5690F7CD2138DE3000305B9E /* ViewController.swift */; };
 		5690F7D12138DE3000305B9E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5690F7CF2138DE3000305B9E /* Main.storyboard */; };
@@ -35,6 +39,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		561EBADD213C45E6001EDECB /* VisualizationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualizationModel.swift; sourceTree = "<group>"; };
+		561EBADF213CA1C3001EDECB /* Order.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Order.swift; sourceTree = "<group>"; };
+		563D4EAD213CE2B40011E4E8 /* btc-aug-1.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "btc-aug-1.csv"; path = "../../../btc-aug-1.csv"; sourceTree = "<group>"; };
+		563D4EAF213CE2CC0011E4E8 /* btc-aug-2.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "btc-aug-2.csv"; path = "../../../btc-aug-2.csv"; sourceTree = "<group>"; };
 		5690F7C82138DE3000305B9E /* NetworkVisualizer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NetworkVisualizer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5690F7CB2138DE3000305B9E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5690F7CD2138DE3000305B9E /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -76,9 +84,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		561EBAD6213C4446001EDECB /* Scans */ = {
+			isa = PBXGroup;
+			children = (
+				563D4EAD213CE2B40011E4E8 /* btc-aug-1.csv */,
+				563D4EAF213CE2CC0011E4E8 /* btc-aug-2.csv */,
+			);
+			path = Scans;
+			sourceTree = "<group>";
+		};
 		5690F7BF2138DE2F00305B9E = {
 			isa = PBXGroup;
 			children = (
+				561EBAD6213C4446001EDECB /* Scans */,
 				5690F7CA2138DE3000305B9E /* NetworkVisualizer */,
 				5690F7DF2138DE3600305B9E /* NetworkVisualizerTests */,
 				5690F7EA2138DE3600305B9E /* NetworkVisualizerUITests */,
@@ -102,6 +120,8 @@
 				5690F7CB2138DE3000305B9E /* AppDelegate.swift */,
 				5690F7CD2138DE3000305B9E /* ViewController.swift */,
 				569B6ABF2138EB38006D02CA /* VisualizationView.swift */,
+				561EBADF213CA1C3001EDECB /* Order.swift */,
+				561EBADD213C45E6001EDECB /* VisualizationModel.swift */,
 				5690F7CF2138DE3000305B9E /* Main.storyboard */,
 				5690F7D22138DE3600305B9E /* Assets.xcassets */,
 				5690F7D42138DE3600305B9E /* LaunchScreen.storyboard */,
@@ -232,7 +252,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				563D4EAE213CE2B40011E4E8 /* btc-aug-1.csv in Resources */,
 				5690F7D62138DE3600305B9E /* LaunchScreen.storyboard in Resources */,
+				563D4EB0213CE2CD0011E4E8 /* btc-aug-2.csv in Resources */,
 				5690F7D32138DE3600305B9E /* Assets.xcassets in Resources */,
 				5690F7D12138DE3000305B9E /* Main.storyboard in Resources */,
 			);
@@ -261,6 +283,8 @@
 			files = (
 				5690F7CE2138DE3000305B9E /* ViewController.swift in Sources */,
 				569B6AC02138EB39006D02CA /* VisualizationView.swift in Sources */,
+				561EBAE0213CA1C3001EDECB /* Order.swift in Sources */,
+				561EBADE213C45E6001EDECB /* VisualizationModel.swift in Sources */,
 				5690F7CC2138DE3000305B9E /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

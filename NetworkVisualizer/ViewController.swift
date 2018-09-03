@@ -11,6 +11,7 @@ import UIKit
 class ViewController: UIViewController {
 
     @IBOutlet weak var visualizationView: VisualizationView!
+    @IBOutlet weak var bannerLabel: UILabel!
     var displayLink: CADisplayLink?
     var startTime = 0.0
     let animLength = 100000.0
@@ -18,6 +19,8 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         startDisplayLink()
+        visualizationView.bannerLabel = bannerLabel
+        bannerLabel.isHidden = true
     }
 
     @IBAction func screenTouched(_ sender: Any) {
